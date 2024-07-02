@@ -1,5 +1,6 @@
 package tomrowicki.engine;
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import tomrowicki.renderer.Shader;
 
@@ -37,10 +38,10 @@ public class LevelEditorScene extends Scene {
 
     private float[] vertexArray = {
             // position             // color
-             0.5f,  -0.5f, 0.0f,      1.0f, 0.0f, 0.0f, 1.0f, // bottom right - 0
-            -0.5f,  0.5f,  0.0f,      0.0f, 1.0f, 0.0f, 1.0f, // top left -     1
-             0.5f,   0.5f, 0.0f,      0.0f, 0.0f, 1.0f, 1.0f, // top right -    2
-            -0.5f, -0.5f,  0.0f,      1.0f, 1.0f, 0.0f, 1.0f, // bottom left -  3
+            100.5f,  0.5f,    0.0f,   1.0f, 0.0f, 0.0f, 1.0f, // bottom right - 0
+            0.5f,   100.5f,  0.0f,   0.0f, 1.0f, 0.0f, 1.0f, // top left -     1
+            100.5f, 100.5f,  0.0f,   0.0f, 0.0f, 1.0f, 1.0f, // top right -    2
+            0.5f,    0.5f,   0.0f,   1.0f, 1.0f, 0.0f, 1.0f, // bottom left -  3
     };
 
     // IMPORTANT: must be counter-clockwise order
@@ -51,8 +52,8 @@ public class LevelEditorScene extends Scene {
 
                         x           x
              */
-        2, 1, 0, // top right triangle
-        0, 1, 3 // bottom left triangle
+            2, 1, 0, // top right triangle
+            0, 1, 3 // bottom left triangle
     };
 
     private int vaoId, vboId, eboId;  // vertex array obj, vertex buffer obj, element buffer obj
@@ -65,6 +66,7 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
+        this.camera = new Camera(new Vector2f());
         defaultShader = new Shader("assets/shaders/default.glsl");
         defaultShader.compile();
 
@@ -108,8 +110,10 @@ public class LevelEditorScene extends Scene {
         Storing longs/doubles in floats/ints can cause issues due to data loss as longs/doubles use 8 bytes while floats/ints use 4 bytes.
          */
 //        System.out.println("We're runnning at " + (1.0f / dt) + " FPS"); // FPS counter
-
+        camera.position.x -= dt * 50.0f; // camera moving constantly left
         defaultShader.use();
+        defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
+        defaultShader.uploadMat4f("uView", camera.getViewMatrix());
         // Bind the VAO
         glBindVertexArray(vaoId);
 
