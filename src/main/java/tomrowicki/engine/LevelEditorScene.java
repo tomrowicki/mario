@@ -3,6 +3,7 @@ package tomrowicki.engine;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import tomrowicki.renderer.Shader;
+import tomrowicki.util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -111,9 +112,12 @@ public class LevelEditorScene extends Scene {
          */
 //        System.out.println("We're runnning at " + (1.0f / dt) + " FPS"); // FPS counter
         camera.position.x -= dt * 50.0f; // camera moving constantly left
+        camera.position.y -= dt * 20.0f;
         defaultShader.use();
         defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
         defaultShader.uploadMat4f("uView", camera.getViewMatrix());
+        defaultShader.uploadFloat("uTime", Time.getTime());
+
         // Bind the VAO
         glBindVertexArray(vaoId);
 
