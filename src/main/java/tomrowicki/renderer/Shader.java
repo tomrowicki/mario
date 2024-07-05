@@ -57,8 +57,8 @@ public class Shader {
             e.printStackTrace();
             assert false: "Could not load shader from file: " + filepath;
         }
-        System.out.println(vertexSource);
-        System.out.println(fragmentSource);
+//        System.out.println(vertexSource);
+//        System.out.println(fragmentSource);
     }
 
     public void compile() {

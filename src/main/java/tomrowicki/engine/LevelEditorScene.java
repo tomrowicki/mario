@@ -2,6 +2,8 @@ package tomrowicki.engine;
 
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
+import tomrowicki.components.FontRenderer;
+import tomrowicki.components.SpriteRenderer;
 import tomrowicki.renderer.Shader;
 import tomrowicki.renderer.Texture;
 import tomrowicki.util.Time;
@@ -14,27 +16,6 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class LevelEditorScene extends Scene {
-
-    private String vertexShaderSrc = "#version 330 core\n" +
-            "layout (location=0) in vec3 aPos; // \"a\" stands for \"attribute\"\n" +
-            "layout (location=1) in vec4 aColor;\n" +
-            "\n" +
-            "out vec4 fColor; // fragment shader\n" +
-            "\n" +
-            "void main() {\n" +
-            "    fColor = aColor;\n" +
-            "    gl_Position = vec4(aPos, 1.0);\n" +
-            "}";
-
-    private String fragmentShaderSrc = "#version 330 core\n" +
-            "\n" +
-            "in vec4 fColor;\n" +
-            "\n" +
-            "out vec4 color;\n" +
-            "\n" +
-            "void main () {\n" +
-            "    color = fColor;\n" +
-            "}";
 
     private int vertexId, fragmentId, shaderProgram;
 
@@ -63,17 +44,27 @@ public class LevelEditorScene extends Scene {
     private Shader defaultShader;
     private Texture testTexture;
 
+    GameObject testObject;
+    boolean firstTime = false;
+
     public LevelEditorScene() {
 
     }
 
     @Override
     public void init() {
+        System.out.println("Creating test object...");
+        this.testObject = new GameObject("test object");
+        this.testObject.addComponent(new SpriteRenderer());
+        this.testObject.addComponent(new FontRenderer());
+
+        addGameObjectToScene(testObject);
+
         this.camera = new Camera(new Vector2f());
         defaultShader = new Shader("assets/shaders/default.glsl");
         defaultShader.compile();
 
-        this.testTexture = new Texture("assets/images/testImage.jpg");
+        this.testTexture = new Texture("assets/images/testImage.png");
 
         /*
             Generate VAO, VBO, and EBO buffer objects and send to GPU
@@ -146,5 +137,17 @@ public class LevelEditorScene extends Scene {
         glDisableVertexAttribArray(1);
         glBindVertexArray(0); // bind nothing
         defaultShader.detach(); // use nothing
+
+        if (!firstTime) {
+            System.out.println("Creating game object....");
+            GameObject gobj = new GameObject("Game test 2");
+            gobj.addComponent(new SpriteRenderer());
+            this.addGameObjectToScene(gobj);
+            firstTime = true;
+        }
+
+        for (GameObject go : this.gameObjects) {
+            go.update(dt);
+        }
     }
 }
