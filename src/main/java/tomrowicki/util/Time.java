@@ -2,7 +2,7 @@ package tomrowicki.util;
 
 public class Time {
 
-    public static final float timeStarted = System.nanoTime();
+    public static final long timeStarted = System.nanoTime();
 
     /**
      *
