@@ -3,6 +3,7 @@ package tomrowicki.engine;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import tomrowicki.components.SpriteRenderer;
+import tomrowicki.util.AssetPool;
 
 public class LevelEditorScene extends Scene {
 
@@ -32,11 +33,17 @@ public class LevelEditorScene extends Scene {
                 addGameObjectToScene(go);
             }
         }
+
+        loadResources();
+    }
+
+    private void loadResources() {
+        AssetPool.getShader("assets/shaders/default.glsl");
     }
 
     @Override
     public void update(float dt) {
-        System.out.println("We're runnning at " + (1.0f / dt) + " FPS"); // FPS counter
+//        System.out.println("We're runnning at " + (1.0f / dt) + " FPS"); // FPS counter
 
         for (GameObject go : this.gameObjects) {
             go.update(dt);

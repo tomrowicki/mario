@@ -3,6 +3,7 @@ package tomrowicki.renderer;
 import org.joml.Vector4f;
 import tomrowicki.components.SpriteRenderer;
 import tomrowicki.engine.Window;
+import tomrowicki.util.AssetPool;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -33,8 +34,7 @@ public class RenderBatch {
     private Shader shader;
 
     public RenderBatch(int maxBatchSize) {
-        shader = new Shader("assets/shaders/default.glsl");
-        shader.compile();
+        shader = AssetPool.getShader("assets/shaders/default.glsl");
         sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
 
