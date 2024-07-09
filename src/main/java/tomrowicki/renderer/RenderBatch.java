@@ -87,7 +87,7 @@ public class RenderBatch {
         glEnableVertexAttribArray(3);
     }
 
-    public void addSprite (SpriteRenderer spr) {
+    public void addSprite(SpriteRenderer spr) {
         // Get index and add renderObject
         int index = numSprites;
         sprites[index] = spr;
@@ -108,9 +108,19 @@ public class RenderBatch {
     }
 
     public void render() {
-        // For now, we will rebuffer all data every frame
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        boolean rebufferData = false;
+        for (int i = 0; i < numSprites; i++) {
+            SpriteRenderer spr = sprites[i];
+            if (spr.isDirty()) {
+                loadVertexProperties(i);
+                spr.setClean();
+                rebufferData = true;
+            }
+        }
+        if (rebufferData) {
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        }
 
         // Use shader
         shader.use();
@@ -151,7 +161,7 @@ public class RenderBatch {
 
         int textId = 0;
         if (sprite.getTexture() != null) {
-            for (int i=0; i<textures.size(); i++) { // lookup for a texture we want
+            for (int i = 0; i < textures.size(); i++) { // lookup for a texture we want
                 if (textures.get(i) == sprite.getTexture()) {
                     textId = i + 1;
                     break;
