@@ -1,5 +1,6 @@
 package tomrowicki.renderer;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import tomrowicki.components.SpriteRenderer;
@@ -15,7 +16,7 @@ import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class RenderBatch {
+public class RenderBatch implements Comparable<RenderBatch> {
 
     // Vertex
     // ======
@@ -43,11 +44,13 @@ public class RenderBatch {
     private int vaoId, vboId;
     private int maxBatchSize;
     private Shader shader;
+    private int zIndex;
 
-    public RenderBatch(int maxBatchSize) {
+    public RenderBatch(int maxBatchSize, int zIndex) {
         shader = AssetPool.getShader("assets/shaders/default.glsl");
         sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
+        this.zIndex = zIndex;
 
         // 4 vertices quads
         vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
@@ -236,5 +239,14 @@ public class RenderBatch {
 
     public boolean hasTexture(Texture tex) {
         return this.textures.contains(tex);
+    }
+
+    public int getZindex() {
+        return zIndex;
+    }
+
+    @Override
+    public int compareTo(@NotNull RenderBatch o) {
+        return Integer.compare(zIndex, o.getZindex());
     }
 }
