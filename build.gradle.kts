@@ -7,6 +7,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 tasks.test {
@@ -16,6 +17,7 @@ tasks.test {
 val lwjglVersion = "3.2.3"
 val jomlVersion = "1.10.6"
 val lwjglNatives = "natives-windows"
+val imguiVersion = "1.76-0.9"
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -38,4 +40,12 @@ dependencies {
     runtimeOnly("org.lwjgl", "lwjgl-opengl", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-stb", classifier = lwjglNatives)
     implementation("org.joml", "joml", jomlVersion)
+
+    // ImGUI stuff
+    implementation ("io.imgui.java:binding:$imguiVersion")
+    implementation ("io.imgui.java:lwjgl3:$imguiVersion")
+
+    // Include all available natives, but it's likely that you want something specific
+    runtimeOnly ("io.imgui.java:natives-windows:$imguiVersion")
+    runtimeOnly ("io.imgui.java:natives-windows-x86:$imguiVersion")
 }
