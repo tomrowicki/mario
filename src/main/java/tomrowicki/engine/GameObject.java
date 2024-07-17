@@ -28,7 +28,7 @@ public class GameObject {
     public <T extends Component> T getComponent(Class<T> componentClass) {
         for (Component component : components) {
             if (componentClass.isAssignableFrom(component.getClass())) {
-                try{
+                try {
                     return componentClass.cast(component);
                 } catch (ClassCastException e) {
                     e.printStackTrace();
@@ -54,7 +54,7 @@ public class GameObject {
         component.gameObject = this;
     }
 
-    public void update (float dt) {
+    public void update(float dt) {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).update(dt);
         }
@@ -63,6 +63,12 @@ public class GameObject {
     public void start() {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).start();
+        }
+    }
+
+    public void imgui() {
+        for (Component c : components) {
+            c.imgui();
         }
     }
 
