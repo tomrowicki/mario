@@ -9,24 +9,24 @@ import tomrowicki.renderer.Texture;
 
 public class SpriteRenderer extends Component {
 
-    private Vector4f color;
-    private Sprite sprite;
+    private Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
+    private Sprite sprite = new Sprite();
 
-    private boolean isDirty = false;
+    private transient Transform lastTransform;
+    private transient boolean isDirty = false;
 
-    private Transform lastTransform;
 
-    public SpriteRenderer(Vector4f color) {
-        this.color = color;
-        this.sprite = null;
-        this.isDirty = true;
-    }
-
-    public SpriteRenderer(Sprite sprite) {
-        this.sprite = sprite;
-        this.color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-        this.isDirty = true;
-    }
+//    public SpriteRenderer(Vector4f color) {
+//        this.color = color;
+//        this.sprite = null;
+//        this.isDirty = true;
+//    }
+//
+//    public SpriteRenderer(Sprite sprite) {
+//        this.sprite = sprite;
+//        this.color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+//        this.isDirty = true;
+//    }
 
     @Override
     public void start() {

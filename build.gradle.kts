@@ -48,4 +48,6 @@ dependencies {
     // Include all available natives, but it's likely that you want something specific
     runtimeOnly ("io.imgui.java:natives-windows:$imguiVersion")
     runtimeOnly ("io.imgui.java:natives-windows-x86:$imguiVersion")
+
+    implementation ("com.google.code.gson:gson:2.11.0")
 }
