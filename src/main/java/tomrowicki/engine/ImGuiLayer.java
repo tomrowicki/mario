@@ -145,21 +145,21 @@ public class ImGuiLayer {
         // Fonts configuration
         // Read: https://raw.githubusercontent.com/ocornut/imgui/master/docs/FONTS.txt
 
-        final ImFontAtlas fontAtlas = io.getFonts();
-        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
-
-        // Glyphs could be added per-font as well as per config used globally like here
-        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
-
-        // Fonts merge example
-        fontConfig.setPixelSnapH(true);
-        fontAtlas.addFontFromFileTTF("assets/fonts/Vanilla Cake Free.ttf", 32, fontConfig);
-
-        fontConfig.destroy(); // After all fonts were added we don't need this config more
-
-//         ------------------------------------------------------------
-//         Use freetype instead of stb_truetype to build a fonts texture
-        ImGuiFreeType.buildFontAtlas(fontAtlas, ImGuiFreeType.RasterizerFlags.LightHinting);
+//        final ImFontAtlas fontAtlas = io.getFonts();
+//        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
+//
+//        // Glyphs could be added per-font as well as per config used globally like here
+//        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
+//
+//        // Fonts merge example
+//        fontConfig.setPixelSnapH(true);
+//        fontAtlas.addFontFromFileTTF("assets/fonts/Vanilla Cake Free.ttf", 32, fontConfig);
+//
+//        fontConfig.destroy(); // After all fonts were added we don't need this config more
+//
+////         ------------------------------------------------------------
+////         Use freetype instead of stb_truetype to build a fonts texture
+//        ImGuiFreeType.buildFontAtlas(fontAtlas, ImGuiFreeType.RasterizerFlags.LightHinting);
 
 //         Method initializes LWJGL3 renderer.
 //         This method SHOULD be called after you've initialized your ImGui configuration (fonts and so on).

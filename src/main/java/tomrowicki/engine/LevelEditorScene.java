@@ -1,16 +1,13 @@
 package tomrowicki.engine;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import tomrowicki.components.RigidBody;
 import tomrowicki.components.Sprite;
 import tomrowicki.components.SpriteRenderer;
 import tomrowicki.components.Spritesheet;
 import tomrowicki.util.AssetPool;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class LevelEditorScene extends Scene {
 
@@ -25,7 +22,8 @@ public class LevelEditorScene extends Scene {
     public void init() {
         loadResources();
         this.camera = new Camera(new Vector2f(-250, 0));
-        if (loadedLevel) {
+        if (levelLoaded) {
+            this.activeGameObject = gameObjects.get(0);
             return;
         }
 
@@ -35,8 +33,8 @@ public class LevelEditorScene extends Scene {
         SpriteRenderer obj1SpriteRenderer = new SpriteRenderer();
         obj1SpriteRenderer.setColor(new Vector4f(1, 0, 0, 1));
         obj1.addComponent(obj1SpriteRenderer);
+        obj1.addComponent(new RigidBody());
         this.addGameObjectToScene(obj1);
-
         this.activeGameObject = obj1;
 
         GameObject obj2 = new GameObject("Object 2", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 2);
@@ -55,6 +53,7 @@ public class LevelEditorScene extends Scene {
         AssetPool.addSpriteSheet("assets/images/spritesheet.png",
                 new Spritesheet(AssetPool.getTexture("assets/images/spritesheet.png"),
                         16, 16, 26, 0));
+        AssetPool.getTexture("assets/images/blendImage2.png");
     }
 
     private int spriteIndex = 0;
