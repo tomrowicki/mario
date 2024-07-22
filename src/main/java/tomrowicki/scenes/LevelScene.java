@@ -1,4 +1,6 @@
-package tomrowicki.engine;
+package tomrowicki.scenes;
+
+import tomrowicki.engine.Window;
 
 public class LevelScene extends Scene {
 

@@ -1,19 +1,19 @@
-package tomrowicki.engine;
+package tomrowicki.scenes;
 
 import imgui.ImGui;
 import imgui.ImVec2;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-import tomrowicki.components.RigidBody;
-import tomrowicki.components.Sprite;
-import tomrowicki.components.SpriteRenderer;
-import tomrowicki.components.Spritesheet;
+import tomrowicki.components.*;
+import tomrowicki.engine.*;
 import tomrowicki.util.AssetPool;
 
 public class LevelEditorScene extends Scene {
 
     private GameObject obj1;
     private Spritesheet sprites;
+
+    MouseControls mouseControls = new MouseControls();
 
     public LevelEditorScene() {
 
@@ -26,6 +26,7 @@ public class LevelEditorScene extends Scene {
         sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
         if (levelLoaded) {
             this.activeGameObject = gameObjects.get(0);
+            this.activeGameObject.addComponent(new RigidBody());
             return;
         }
 
@@ -74,7 +75,7 @@ public class LevelEditorScene extends Scene {
 //            camera.position.y -= 100f * dt;
 //        }
 
-        MouseListener.getOrthoX();
+        mouseControls.update(dt);
 
         for (GameObject go : this.gameObjects) {
             go.update(dt);
@@ -105,7 +106,9 @@ public class LevelEditorScene extends Scene {
             ImGui.pushID(i);
             if (ImGui.imageButton(id, spriteWidth, spriteHeight, texCoords[0].x, texCoords[0].y,
                     texCoords[2].x, texCoords[2].y)) {
-                System.out.println("Button " + i + " clicked");
+//                System.out.println("Button " + i + " clicked");
+                GameObject object = Prefabs.generateSpriteObject(sprite, spriteWidth, spriteHeight);
+                mouseControls.pickupObject(object);
             }
             ImGui.popID();
 

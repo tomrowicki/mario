@@ -3,7 +3,6 @@ package tomrowicki.components;
 import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-import tomrowicki.engine.Component;
 import tomrowicki.engine.Transform;
 import tomrowicki.renderer.Texture;
 

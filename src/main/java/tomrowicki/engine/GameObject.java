@@ -1,9 +1,14 @@
 package tomrowicki.engine;
 
+import tomrowicki.components.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
+
+    private static int ID_COUNTER = 0;
+    private int uid = -1;
 
     private String name;
     private List<Component> components;
@@ -11,18 +16,13 @@ public class GameObject {
     public Transform transform;
     private int zIndex;
 
-    public GameObject(String name) {
-        this.components = new ArrayList<>();
-        this.name = name;
-        this.transform = new Transform();
-        this.zIndex = 0;
-    }
-
     public GameObject(String name, Transform transform, int zIndex) {
         this.components = new ArrayList<>();
         this.name = name;
         this.transform = transform;
         this.zIndex = zIndex;
+
+        this.uid = ID_COUNTER++;
     }
 
     public <T extends Component> T getComponent(Class<T> componentClass) {
@@ -50,6 +50,7 @@ public class GameObject {
     }
 
     public void addComponent(Component component) {
+        component.generateId();
         this.components.add(component);
         component.gameObject = this;
     }
@@ -74,5 +75,17 @@ public class GameObject {
 
     public int getZindex() {
         return zIndex;
+    }
+
+    public static void init(int maxId) {
+        ID_COUNTER = maxId;
+    }
+
+    public int getUid() {
+        return uid;
+    }
+
+    public List<Component> getAllComponents() {
+        return this.components;
     }
 }

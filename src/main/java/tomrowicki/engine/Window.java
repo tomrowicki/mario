@@ -3,6 +3,9 @@ package tomrowicki.engine;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import tomrowicki.scenes.LevelEditorScene;
+import tomrowicki.scenes.LevelScene;
+import tomrowicki.scenes.Scene;
 import tomrowicki.util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;

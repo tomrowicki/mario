@@ -1,4 +1,4 @@
-package tomrowicki.engine;
+package tomrowicki.components;
 
 import com.google.gson.*;
 

@@ -1,7 +1,5 @@
 package tomrowicki.components;
 
-import tomrowicki.engine.Component;
-
 public class FontRenderer extends Component {
 
     @Override

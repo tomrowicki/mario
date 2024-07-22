@@ -1,13 +1,17 @@
-package tomrowicki.engine;
+package tomrowicki.components;
 
 import imgui.ImGui;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import tomrowicki.engine.GameObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 public abstract class Component {
+
+    private static int ID_COUNTER = 0;
+    private int uid = -1;
 
     public transient GameObject gameObject = null;
 
@@ -75,5 +79,19 @@ public abstract class Component {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    public void generateId() {
+        if (uid == -1) {
+            this.uid = ID_COUNTER++;
+        }
+    }
+
+    public int getUid() {
+        return uid;
+    }
+
+    public static void init(int maxId) {
+        ID_COUNTER = maxId;
     }
 }

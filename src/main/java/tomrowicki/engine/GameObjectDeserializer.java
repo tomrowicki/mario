@@ -1,6 +1,7 @@
 package tomrowicki.engine;
 
 import com.google.gson.*;
+import tomrowicki.components.Component;
 
 import java.lang.reflect.Type;
 
