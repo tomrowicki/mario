@@ -8,6 +8,7 @@ public class Camera {
 
     private Matrix4f projectionMatrix, viewMatrix, inverseProjection, inverseView; // 4x4 matrices
     public Vector2f position;
+    private Vector2f projectionSize = new Vector2f(32.0f * 40.0f, 32.0f * 21.0f);
 
     public Camera(Vector2f position) {
         this.position = position;
@@ -20,7 +21,7 @@ public class Camera {
 
     public void adjustProjection() {
         projectionMatrix.identity(); // see: identity matrix (whatever is multiplied by this gives itself as the result)
-        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f); // splits everything into tiles
+        projectionMatrix.ortho(0.0f, projectionSize.x, 0.0f, projectionSize.y, 0.0f, 100.0f); // splits everything into tiles
         projectionMatrix.invert(inverseProjection);
     }
 
@@ -43,5 +44,9 @@ public class Camera {
     }
     public Matrix4f getInverseView() {
         return inverseView;
+    }
+
+    public Vector2f getProjectionSize() {
+        return projectionSize;
     }
 }

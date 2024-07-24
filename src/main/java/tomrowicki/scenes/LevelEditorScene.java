@@ -15,7 +15,7 @@ public class LevelEditorScene extends Scene {
     private GameObject obj1;
     private Spritesheet sprites;
 
-    MouseControls mouseControls = new MouseControls();
+    GameObject levelEditorStuff = new GameObject("Level Editor", new Transform(new Vector2f()), 0);
 
     public LevelEditorScene() {
 
@@ -23,6 +23,9 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
+        levelEditorStuff.addComponent(new MouseControls());
+        levelEditorStuff.addComponent(new GridLines());
+
         loadResources();
         this.camera = new Camera(new Vector2f(-250, 0));
         sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
@@ -32,23 +35,23 @@ public class LevelEditorScene extends Scene {
             return;
         }
 
-
-        obj1 = new GameObject("Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 1);
-        SpriteRenderer obj1SpriteRenderer = new SpriteRenderer();
-        obj1SpriteRenderer.setColor(new Vector4f(1, 0, 0, 1));
-        obj1.addComponent(obj1SpriteRenderer);
-        obj1.addComponent(new RigidBody());
-        this.addGameObjectToScene(obj1);
-        this.activeGameObject = obj1;
-
-        GameObject obj2 = new GameObject("Object 2", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 2);
-        SpriteRenderer obj2SpriteRenderer = new SpriteRenderer();
-        Sprite obj2Sprite = new Sprite();
-        obj2Sprite.setTexture(AssetPool.getTexture("assets/images/blendImage2.png"));
-        obj2SpriteRenderer.setSprite(obj2Sprite);
-
-        obj2.addComponent(obj2SpriteRenderer);
-        this.addGameObjectToScene(obj2);
+//
+//        obj1 = new GameObject("Object 1", new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 1);
+//        SpriteRenderer obj1SpriteRenderer = new SpriteRenderer();
+//        obj1SpriteRenderer.setColor(new Vector4f(1, 0, 0, 1));
+//        obj1.addComponent(obj1SpriteRenderer);
+//        obj1.addComponent(new RigidBody());
+//        this.addGameObjectToScene(obj1);
+//        this.activeGameObject = obj1;
+//
+//        GameObject obj2 = new GameObject("Object 2", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 2);
+//        SpriteRenderer obj2SpriteRenderer = new SpriteRenderer();
+//        Sprite obj2Sprite = new Sprite();
+//        obj2Sprite.setTexture(AssetPool.getTexture("assets/images/blendImage2.png"));
+//        obj2SpriteRenderer.setSprite(obj2Sprite);
+//
+//        obj2.addComponent(obj2SpriteRenderer);
+//        this.addGameObjectToScene(obj2);
     }
 
 
@@ -64,8 +67,6 @@ public class LevelEditorScene extends Scene {
     private float spriteFlipTime = 0.2f;
     private float spriteFlipTimeLeft = 0.0f;
 
-    float t = 0;
-
     @Override
     public void update(float dt) {
 //        if (KeyListener.isKeyPressed(GLFW_KEY_RIGHT)) {
@@ -79,12 +80,7 @@ public class LevelEditorScene extends Scene {
 //            camera.position.y -= 100f * dt;
 //        }
 
-        float x = (float) (Math.sin(t) * 200 + 600);
-        float y = (float) (Math.cos(t) * 200 + 400);
-        t += 0.05f;
-        DebugDraw.addLine2D(new Vector2f(600, 400), new Vector2f(x, y), new Vector3f(0,0,1), 1);
-
-        mouseControls.update(dt);
+        levelEditorStuff.update(dt);
 
         for (GameObject go : this.gameObjects) {
             go.update(dt);
@@ -108,16 +104,16 @@ public class LevelEditorScene extends Scene {
         for (int i = 0; i < sprites.size(); i++) {
             Sprite sprite = sprites.getSprite(i);
             float spriteWidth = sprite.getWidth() * 4;
-            float spriteHeight = sprite.getHeight() * 4;
+            float spriteHeight = sprite.getHeight() * 4; // size on imgui panel
             int id = sprite.getTexId();
             Vector2f[] texCoords = sprite.getTexCoords();
 
             ImGui.pushID(i);
-            if (ImGui.imageButton(id, spriteWidth, spriteHeight, texCoords[0].x, texCoords[0].y,
-                    texCoords[2].x, texCoords[2].y)) {
+            if (ImGui.imageButton(id, spriteWidth, spriteHeight, texCoords[2].x, texCoords[0].y,
+                    texCoords[0].x, texCoords[2].y)) {
 //                System.out.println("Button " + i + " clicked");
-                GameObject object = Prefabs.generateSpriteObject(sprite, spriteWidth, spriteHeight);
-                mouseControls.pickupObject(object);
+                GameObject object = Prefabs.generateSpriteObject(sprite, 32, 32); // size on world map
+                levelEditorStuff.getComponent(MouseControls.class).pickupObject(object);
             }
             ImGui.popID();
 
