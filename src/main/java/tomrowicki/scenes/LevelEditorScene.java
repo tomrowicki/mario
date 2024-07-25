@@ -66,6 +66,9 @@ public class LevelEditorScene extends Scene {
     private int spriteIndex = 0;
     private float spriteFlipTime = 0.2f;
     private float spriteFlipTimeLeft = 0.0f;
+    private float x = 0.0f;
+    private float y = 0.0f;
+//    private float angle = 0.0f;
 
     @Override
     public void update(float dt) {
@@ -81,6 +84,12 @@ public class LevelEditorScene extends Scene {
 //        }
 
         levelEditorStuff.update(dt);
+
+//        DebugDraw.addBox2D(new Vector2f(200, 200), new Vector2f(64, 32), angle, new Vector3f(0,1,0), 1);
+//        angle += 40.0f * dt;
+        DebugDraw.addCircle(new Vector2f(x,y), 64, new Vector3f(0,1,0), 1);
+        x += 50f * dt;
+        y += 50f * dt;
 
         for (GameObject go : this.gameObjects) {
             go.update(dt);
