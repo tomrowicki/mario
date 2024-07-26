@@ -47,7 +47,6 @@ public class SpriteRenderer extends Component {
             this.color.set(imColor[0], imColor[1], imColor[2], imColor[3]);
             isDirty = true;
         }
-
     }
 
     public Vector4f getColor() {
@@ -82,5 +81,7 @@ public class SpriteRenderer extends Component {
         isDirty = false;
     }
 
-
+    public void setTexture(Texture texture) {
+        sprite.setTexture(texture);
+    }
 }

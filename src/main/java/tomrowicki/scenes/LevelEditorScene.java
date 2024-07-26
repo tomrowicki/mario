@@ -30,9 +30,9 @@ public class LevelEditorScene extends Scene {
         this.camera = new Camera(new Vector2f(-250, 0));
         sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
         if (levelLoaded) {
-            this.activeGameObject = gameObjects.get(0);
-            this.activeGameObject.addComponent(new RigidBody());
-            return;
+            if (gameObjects.size() > 0) {
+                this.activeGameObject = gameObjects.get(0);
+            }
         }
 
 //
@@ -61,6 +61,15 @@ public class LevelEditorScene extends Scene {
                 new Spritesheet(AssetPool.getTexture("assets/images/spritesheets/decorationsAndBlocks.png"),
                         16, 16, 81, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
+
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.getComponent(SpriteRenderer.class) != null) {
+                SpriteRenderer renderer = gameObject.getComponent(SpriteRenderer.class);
+                if (renderer.getTexture() != null) {
+                    renderer.setTexture(AssetPool.getTexture(renderer.getTexture().getFilepath()));
+                }
+            }
+        }
     }
 
     private int spriteIndex = 0;

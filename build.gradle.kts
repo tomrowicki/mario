@@ -17,7 +17,7 @@ tasks.test {
 val lwjglVersion = "3.2.3"
 val jomlVersion = "1.10.6"
 val lwjglNatives = "natives-windows"
-val imguiVersion = "1.76-0.9"
+val imguiVersion = "1.77-0.17.1"
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
