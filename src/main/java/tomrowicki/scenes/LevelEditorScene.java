@@ -31,6 +31,7 @@ public class LevelEditorScene extends Scene {
         sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
         if (levelLoaded) {
             if (gameObjects.size() > 0) {
+                System.out.println("active objects");
                 this.activeGameObject = gameObjects.get(0);
             }
         }
@@ -96,7 +97,7 @@ public class LevelEditorScene extends Scene {
 
 //        DebugDraw.addBox2D(new Vector2f(200, 200), new Vector2f(64, 32), angle, new Vector3f(0,1,0), 1);
 //        angle += 40.0f * dt;
-        DebugDraw.addCircle(new Vector2f(x,y), 64, new Vector3f(0,1,0), 1);
+        DebugDraw.addCircle(new Vector2f(x, y), 64, new Vector3f(0, 1, 0), 1);
         x += 50f * dt;
         y += 50f * dt;
 

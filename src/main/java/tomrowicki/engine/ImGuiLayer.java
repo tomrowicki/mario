@@ -6,6 +6,7 @@ import imgui.callback.ImStrSupplier;
 import imgui.flag.*;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.type.ImBoolean;
+import tomrowicki.editor.GameViewWindow;
 import tomrowicki.scenes.Scene;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -177,17 +178,18 @@ public class ImGuiLayer {
 
     // Main application loop
     public void update(float dt, Scene currentScene) {
-            startFrame(dt);
+        startFrame(dt);
 
-            // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
-            ImGui.newFrame();
-            setupDockspace();
-            currentScene.sceneImgui();
-            ImGui.showDemoWindow();
-            ImGui.end();
-            ImGui.render();
+        // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
+        ImGui.newFrame();
+        setupDockspace();
+        currentScene.sceneImgui();
+        ImGui.showDemoWindow();
+        GameViewWindow.imgui();
+        ImGui.end();
+        ImGui.render();
 
-            endFrame();
+        endFrame();
     }
 
     private void startFrame(final float deltaTime) {
