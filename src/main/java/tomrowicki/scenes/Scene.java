@@ -27,6 +27,7 @@ public abstract class Scene {
     protected boolean levelLoaded = false;
 
     public Scene() {
+
     }
 
     public void init() {
@@ -36,7 +37,7 @@ public abstract class Scene {
     public void start() {
         for (GameObject go : gameObjects) {
             go.start();
-            renderer.add(go);
+            this.renderer.add(go);
         }
         isRunning = true;
     }
@@ -47,14 +48,15 @@ public abstract class Scene {
         } else {
             gameObjects.add(go);
             go.start();
-            renderer.add(go);
+            this.renderer.add(go);
         }
     }
 
     public abstract void update(float dt);
+    public abstract void render();
 
     public Camera camera() {
-        return camera;
+        return this.camera;
     }
 
     public void sceneImgui() {
@@ -63,6 +65,7 @@ public abstract class Scene {
             activeGameObject.imgui();
             ImGui.end();
         }
+
         imgui();
     }
 
@@ -79,9 +82,9 @@ public abstract class Scene {
 
         try {
             FileWriter writer = new FileWriter("level.txt");
-            writer.write(gson.toJson(gameObjects));
+            writer.write(gson.toJson(this.gameObjects));
             writer.close();
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
@@ -104,7 +107,7 @@ public abstract class Scene {
             int maxGoId = -1;
             int maxCompId = -1;
             GameObject[] objs = gson.fromJson(inFile, GameObject[].class);
-            for (int i = 0; i < objs.length; i++) {
+            for (int i=0; i < objs.length; i++) {
                 addGameObjectToScene(objs[i]);
 
                 for (Component c : objs[i].getAllComponents()) {
@@ -116,6 +119,7 @@ public abstract class Scene {
                     maxGoId = objs[i].getUid();
                 }
             }
+
             maxGoId++;
             maxCompId++;
             GameObject.init(maxGoId);

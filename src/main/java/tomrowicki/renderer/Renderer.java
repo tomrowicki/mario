@@ -8,28 +8,27 @@ import java.util.Collections;
 import java.util.List;
 
 public class Renderer {
-
     private final int MAX_BATCH_SIZE = 1000;
     private List<RenderBatch> batches;
+    private static Shader currentShader;
 
     public Renderer() {
-        batches = new ArrayList<>();
+        this.batches = new ArrayList<>();
     }
 
     public void add(GameObject go) {
         SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
-
         if (spr != null) {
             add(spr);
         }
     }
 
-    public void add(SpriteRenderer sprite) {
+    private void add(SpriteRenderer sprite) {
         boolean added = false;
         for (RenderBatch batch : batches) {
-            if (batch.hasRoom() && batch.getZindex() == sprite.gameObject.getZindex()) { // only sprites with the same z-index belong in one batch
+            if (batch.hasRoom() && batch.getZindex() == sprite.gameObject.getZindex()) {
                 Texture tex = sprite.getTexture();
-                if ((tex == null || (batch.hasTexture(tex) || batch.hasTextureRoom()))) {
+                if (tex == null || (batch.hasTexture(tex) || batch.hasTextureRoom())) {
                     batch.addSprite(sprite);
                     added = true;
                     break;
@@ -46,7 +45,16 @@ public class Renderer {
         }
     }
 
+    public static void bindShader(Shader shader) {
+        currentShader = shader;
+    }
+
+    public static Shader getBoundShader() {
+        return currentShader;
+    }
+
     public void render() {
+        currentShader.use();
         for (RenderBatch batch : batches) {
             batch.render();
         }

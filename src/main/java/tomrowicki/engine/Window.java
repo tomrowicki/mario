@@ -3,11 +3,11 @@ package tomrowicki.engine;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import tomrowicki.renderer.DebugDraw;
-import tomrowicki.renderer.Framebuffer;
+import tomrowicki.renderer.*;
 import tomrowicki.scenes.LevelEditorScene;
 import tomrowicki.scenes.LevelScene;
 import tomrowicki.scenes.Scene;
+import tomrowicki.util.AssetPool;
 import tomrowicki.util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -16,28 +16,27 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-
-    private int width;
-    private int height;
-    private final String title;
+    private int width, height;
+    private String title;
     private long glfwWindow;
-    private ImGuiLayer imGuiLayer;
+    private ImGuiLayer imguiLayer;
     private Framebuffer framebuffer;
+    private PickingTexture pickingTexture;
 
     public float r, g, b, a;
     private boolean fadeToBlack = false;
 
     private static Window window = null;
 
-    private static Scene currentScene = null;
+    private static Scene currentScene;
 
     private Window() {
         this.width = 2560;
         this.height = 1440;
         this.title = "Mario";
         r = 1;
-        g = 1;
         b = 1;
+        g = 1;
         a = 1;
     }
 
@@ -50,7 +49,7 @@ public class Window {
                 currentScene = new LevelScene();
                 break;
             default:
-                assert false : "Unknown scene " + newScene;
+                assert false : "Unknown scene '" + newScene + "'";
                 break;
         }
 
@@ -60,22 +59,15 @@ public class Window {
     }
 
     public static Window get() {
-        if (window == null) {
-            window = new Window();
+        if (Window.window == null) {
+            Window.window = new Window();
         }
-        return window;
+
+        return Window.window;
     }
 
     public static Scene getScene() {
         return get().currentScene;
-    }
-
-    public static Framebuffer getFramebuffer() {
-        return get().framebuffer;
-    }
-
-    public static float getTargetAspectRatio() {
-        return 16.0f / 9.0f;
     }
 
     public void run() {
@@ -84,41 +76,41 @@ public class Window {
         init();
         loop();
 
-        // Free the memory allocated by C-level binaries
+        // Free the memory
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
-        // Terminate GLFW
+        // Terminate GLFW and the free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
     }
 
-    private void init() {
-        // Set up error callback
+    public void init() {
+        // Setup an error callback
         GLFWErrorCallback.createPrint(System.err).set();
 
-        // Initialise GLFW (window manager)
+        // Initialize GLFW
         if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
+            throw new IllegalStateException("Unable to initialize GLFW.");
         }
 
         // Configure GLFW
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Window not visible before everything is set up
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-        // Create the Window; returns memory pointer
-        glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
+        // Create the window
+        glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
         if (glfwWindow == NULL) {
-            throw new IllegalStateException("Failed to create the GLFW window!");
+            throw new IllegalStateException("Failed to create the GLFW window.");
         }
 
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
         glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
-        glfwSetWindowSizeCallback(glfwWindow, (window, newWidth, newHeight) -> {
+        glfwSetWindowSizeCallback(glfwWindow, (w, newWidth, newHeight) -> {
             Window.setWidth(newWidth);
             Window.setHeight(newHeight);
         });
@@ -128,7 +120,7 @@ public class Window {
         // Enable v-sync
         glfwSwapInterval(1);
 
-        // Make the Window visible
+        // Make the window visible
         glfwShowWindow(glfwWindow);
 
         // This line is critical for LWJGL's interoperation with GLFW's
@@ -138,27 +130,51 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        // Enabling alpha blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        this.imGuiLayer = new ImGuiLayer(glfwWindow);
-        this.imGuiLayer.initImGui();
+        this.imguiLayer = new ImGuiLayer(glfwWindow);
+        this.imguiLayer.initImGui();
 
-        this.framebuffer = new Framebuffer(width, height);
-        glViewport(0, 0, width, height);
+        this.framebuffer = new Framebuffer(3840, 2160);
+        this.pickingTexture = new PickingTexture(3840, 2160);
+        glViewport(0, 0, 3840, 2160);
 
         Window.changeScene(0);
     }
 
-    private void loop() {
-        float beginTime = Time.getTime();
+    public void loop() {
+        float beginTime = (float)glfwGetTime();
         float endTime;
         float dt = -1.0f;
+
+        Shader defaultShader = AssetPool.getShader("assets/shaders/default.glsl");
+        Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
 
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
 
+            // Render pass 1. Render to picking texture
+            glDisable(GL_BLEND);
+            pickingTexture.enableWriting();
+
+            glViewport(0, 0, 3840, 2160);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            Renderer.bindShader(pickingShader);
+            currentScene.render();
+
+            if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+                int x = (int)MouseListener.getScreenX();
+                int y = (int)MouseListener.getScreenY();
+                System.out.println(pickingTexture.readPixel(x, y));
+            }
+
+            pickingTexture.disableWriting();
+            glEnable(GL_BLEND);
+
+            // Render pass 2. Render actual game
             DebugDraw.beginFrame();
 
             this.framebuffer.bind();
@@ -167,17 +183,20 @@ public class Window {
 
             if (dt >= 0) {
                 DebugDraw.draw();
+                Renderer.bindShader(defaultShader);
                 currentScene.update(dt);
+                currentScene.render();
             }
             this.framebuffer.unbind();
 
-            this.imGuiLayer.update(dt, currentScene);
+            this.imguiLayer.update(dt, currentScene);
             glfwSwapBuffers(glfwWindow);
 
-            endTime = Time.getTime();
+            endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+
         currentScene.saveExit();
     }
 
@@ -195,5 +214,13 @@ public class Window {
 
     public static void setHeight(int newHeight) {
         get().height = newHeight;
+    }
+
+    public static Framebuffer getFramebuffer() {
+        return get().framebuffer;
+    }
+
+    public static float getTargetAspectRatio() {
+        return 16.0f / 9.0f;
     }
 }
