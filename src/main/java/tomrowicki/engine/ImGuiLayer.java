@@ -252,4 +252,8 @@ public class ImGuiLayer {
         // Dockspace
         ImGui.dockSpace(ImGui.getID("Dockspace")); // generates id by hashing the string
     }
+
+    public PropertiesWindow getPropertiesWindow() {
+        return propertiesWindow;
+    }
 }

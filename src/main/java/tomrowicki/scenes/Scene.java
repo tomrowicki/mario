@@ -62,22 +62,6 @@ public abstract class Scene {
 
     }
 
-    public void saveExit() {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(Component.class, new ComponentDeserializer())
-                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
-                .create();
-
-        try {
-            FileWriter writer = new FileWriter("level.txt");
-            writer.write(gson.toJson(this.gameObjects));
-            writer.close();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void load() {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -121,5 +105,27 @@ public abstract class Scene {
         return gameObjects.stream()
                 .filter(go -> go.getUid() == gameObjectId)
                 .findFirst().orElse(null);
+    }
+
+    public void saveExit() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Component.class, new ComponentDeserializer())
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+                .create();
+
+        try {
+            FileWriter writer = new FileWriter("level.txt");
+            List<GameObject> objsToSerialize = new ArrayList<>();
+            for (GameObject go : gameObjects) {
+                if (go.doSerialization()) {
+                    objsToSerialize.add(go);
+                }
+            }
+            writer.write(gson.toJson(objsToSerialize));
+            writer.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 }
