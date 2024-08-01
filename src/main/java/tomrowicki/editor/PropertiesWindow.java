@@ -1,6 +1,7 @@
 package tomrowicki.editor;
 
 import imgui.ImGui;
+import tomrowicki.components.NonPickable;
 import tomrowicki.engine.GameObject;
 import tomrowicki.engine.MouseListener;
 import tomrowicki.renderer.PickingTexture;
@@ -27,7 +28,12 @@ public class PropertiesWindow {
             int x = (int)MouseListener.getScreenX();
             int y = (int)MouseListener.getScreenY();
             int gameObjectId = pickingTexture.readPixel(x, y);
-            activeGameObject = currentScene.getGameObject(gameObjectId);
+            GameObject pickedObject = currentScene.getGameObject(gameObjectId);
+            if (pickedObject != null && pickedObject.getComponent(NonPickable.class) == null) {
+                activeGameObject = pickedObject;
+            } else if (pickedObject == null && !MouseListener.isDragging()) {
+                activeGameObject = null;
+            }
             debounce = 0.2f;
         }
     }
