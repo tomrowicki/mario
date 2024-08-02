@@ -8,6 +8,7 @@ import tomrowicki.components.ComponentDeserializer;
 import tomrowicki.engine.Camera;
 import tomrowicki.engine.GameObject;
 import tomrowicki.engine.GameObjectDeserializer;
+import tomrowicki.engine.Transform;
 import tomrowicki.renderer.Renderer;
 
 import java.io.FileWriter;
@@ -60,6 +61,13 @@ public abstract class Scene {
 
     public void imgui() {
 
+    }
+
+    public GameObject createGameObject(String name) {
+        GameObject go = new GameObject(name);
+        go.addComponent(new Transform());
+        go.transform = go.getComponent(Transform.class);
+        return go;
     }
 
     public void load() {

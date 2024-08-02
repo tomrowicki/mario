@@ -1,5 +1,6 @@
 package tomrowicki.engine;
 
+import imgui.ImGui;
 import tomrowicki.components.Component;
 
 import java.util.ArrayList;
@@ -13,15 +14,12 @@ public class GameObject {
     private String name;
     private List<Component> components;
 
-    public Transform transform;
-    private int zIndex;
+    public transient Transform transform;
     private boolean doSerialization = true;
 
-    public GameObject(String name, Transform transform, int zIndex) {
+    public GameObject(String name) {
         this.components = new ArrayList<>();
         this.name = name;
-        this.transform = transform;
-        this.zIndex = zIndex;
 
         this.uid = ID_COUNTER++;
     }
@@ -70,12 +68,10 @@ public class GameObject {
 
     public void imgui() {
         for (Component c : components) {
-            c.imgui();
+            if (ImGui.collapsingHeader(c.getClass().getSimpleName())) {
+                c.imgui();
+            }
         }
-    }
-
-    public int getZindex() {
-        return zIndex;
     }
 
     public static void init(int maxId) {
