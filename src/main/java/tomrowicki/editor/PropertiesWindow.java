@@ -4,6 +4,9 @@ import imgui.ImGui;
 import tomrowicki.components.NonPickable;
 import tomrowicki.engine.GameObject;
 import tomrowicki.engine.MouseListener;
+import tomrowicki.physics2d.components.Box2DCollider;
+import tomrowicki.physics2d.components.CircleCollider;
+import tomrowicki.physics2d.components.Rigidbody2D;
 import tomrowicki.renderer.PickingTexture;
 import tomrowicki.scenes.Scene;
 
@@ -23,10 +26,9 @@ public class PropertiesWindow {
     public void update(float dt, Scene currentScene) {
         debounce -= dt;
 
-
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && debounce < 0) {
-            int x = (int)MouseListener.getScreenX();
-            int y = (int)MouseListener.getScreenY();
+            int x = (int) MouseListener.getScreenX();
+            int y = (int) MouseListener.getScreenY();
             int gameObjectId = pickingTexture.readPixel(x, y);
             GameObject pickedObject = currentScene.getGameObject(gameObjectId);
             if (pickedObject != null && pickedObject.getComponent(NonPickable.class) == null) {
@@ -41,6 +43,31 @@ public class PropertiesWindow {
     public void imgui() {
         if (activeGameObject != null) {
             ImGui.begin("Properties");
+
+            if (ImGui.beginPopupContextWindow("ComponentAdder")) {
+                if (ImGui.menuItem("Add Rigidbody")) {
+                    if (activeGameObject.getComponent(Rigidbody2D.class) == null) {
+                        activeGameObject.addComponent(new Rigidbody2D());
+                    }
+                }
+
+                if (ImGui.menuItem("Add Box Collider")) {
+                    if (activeGameObject.getComponent(Box2DCollider.class) == null &&
+                            activeGameObject.getComponent(CircleCollider.class) == null) {
+                        activeGameObject.addComponent(new Box2DCollider());
+                    }
+                }
+
+                if (ImGui.menuItem("Add Circle Collider")) {
+                    if (activeGameObject.getComponent(CircleCollider.class) == null &&
+                            activeGameObject.getComponent(Box2DCollider.class) == null) {
+                        activeGameObject.addComponent(new CircleCollider());
+                    }
+                }
+
+                ImGui.endPopup();
+            }
+
             activeGameObject.imgui();
             ImGui.end();
         }
