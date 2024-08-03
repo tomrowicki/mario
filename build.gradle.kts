@@ -50,4 +50,6 @@ dependencies {
     runtimeOnly ("io.imgui.java:natives-windows-x86:$imguiVersion")
 
     implementation ("com.google.code.gson:gson:2.11.0")
+
+    implementation("org.jbox2d", "jbox2d-library", "2.2.1.1")
 }
