@@ -6,13 +6,28 @@ import imgui.flag.ImGuiWindowFlags;
 import org.joml.Vector2f;
 import tomrowicki.engine.MouseListener;
 import tomrowicki.engine.Window;
+import tomrowicki.observers.EventSystem;
+import tomrowicki.observers.events.Event;
+import tomrowicki.observers.events.EventType;
 
 public class GameViewWindow {
 
     private float leftX, rightX, topY, bottomY;
+    private boolean isPlaying = false;
 
     public void imgui() {
-        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.MenuBar);
+
+        ImGui.beginMenuBar();
+        if (ImGui.menuItem("Play", "", isPlaying, !isPlaying)) {
+            isPlaying = true;
+            EventSystem.notify(null, new Event(EventType.GameEngineStartPlay));
+        }
+        if (ImGui.menuItem("Stop", "", !isPlaying, isPlaying)) {
+            isPlaying = false;
+            EventSystem.notify(null, new Event(EventType.GameEngineStopPlay));
+        }
+        ImGui.endMenuBar();
 
         ImVec2 windowSize = getLargestSizeForViewport();
         ImVec2 windowPos = getCenteredPositionForViewport(windowSize);

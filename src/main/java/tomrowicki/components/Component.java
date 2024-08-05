@@ -25,6 +25,10 @@ public abstract class Component {
 
     }
 
+    public void editorUpdate(float dt) {
+
+    }
+
     // important for serialization/deserialization for some reason...
     public void imgui() {
         try {
@@ -84,6 +88,10 @@ public abstract class Component {
         if (uid == -1) {
             this.uid = ID_COUNTER++;
         }
+    }
+
+    public void destroy() {
+
     }
 
     public int getUid() {
