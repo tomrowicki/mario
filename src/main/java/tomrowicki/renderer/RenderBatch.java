@@ -47,7 +47,11 @@ public class RenderBatch implements Comparable<RenderBatch> {
     private int maxBatchSize;
     private int zIndex;
 
-    public RenderBatch(int maxBatchSize, int zIndex) {
+    private Renderer renderer;
+
+    public RenderBatch(int maxBatchSize, int zIndex, Renderer renderer) {
+        this.renderer = renderer;
+
         this.zIndex = zIndex;
         this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
@@ -122,6 +126,13 @@ public class RenderBatch implements Comparable<RenderBatch> {
                 spr.setClean();
                 rebufferData = true;
             }
+
+            // TODO: get better solution for this
+            if (spr.gameObject.transform.zIndex != this.zIndex) {
+                destroyIfExists(spr.gameObject);
+                renderer.add(spr.gameObject);
+                i--;
+            }
         }
         if (rebufferData) {
             glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -154,6 +165,22 @@ public class RenderBatch implements Comparable<RenderBatch> {
         shader.detach();
     }
 
+    public boolean destroyIfExists(GameObject go) {
+        SpriteRenderer sprite = go.getComponent(SpriteRenderer.class);
+        for (int i=0; i < numSprites; i++) {
+            if (sprites[i] == sprite) {
+                for (int j=i; j < numSprites - 1; j++) {
+                    sprites[j] = sprites[j + 1];
+                    sprites[j].setDirty();
+                }
+                numSprites--;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void loadVertexProperties(int index) {
         SpriteRenderer sprite = this.sprites[index];
 
@@ -173,34 +200,34 @@ public class RenderBatch implements Comparable<RenderBatch> {
             }
         }
 
-        boolean isRotated = sprite.gameObject.transform.rotation != 0;
-        Matrix4f transformaMatrix = new Matrix4f().identity();
+        boolean isRotated = sprite.gameObject.transform.rotation != 0.0f;
+        Matrix4f transformMatrix = new Matrix4f().identity();
         if (isRotated) {
-            transformaMatrix.translate(sprite.gameObject.transform.position.x,
-                    sprite.gameObject.transform.position.y, 0);
-            transformaMatrix.rotate((float) Math.toRadians(sprite.gameObject.transform.rotation), 0, 0, 1);
-            transformaMatrix.scale(sprite.gameObject.transform.scale.x, sprite.gameObject.transform.scale.y, 1);
+            transformMatrix.translate(sprite.gameObject.transform.position.x,
+                    sprite.gameObject.transform.position.y, 0f);
+            transformMatrix.rotate((float)Math.toRadians(sprite.gameObject.transform.rotation),
+                    0, 0, 1);
+            transformMatrix.scale(sprite.gameObject.transform.scale.x,
+                    sprite.gameObject.transform.scale.y, 1);
         }
 
         // Add vertices with the appropriate properties
-        float xAdd = 1.0f;
-        float yAdd = 1.0f;
+        float xAdd = 0.5f;
+        float yAdd = 0.5f;
         for (int i=0; i < 4; i++) {
             if (i == 1) {
-                yAdd = 0.0f;
+                yAdd = -0.5f;
             } else if (i == 2) {
-                xAdd = 0.0f;
+                xAdd = -0.5f;
             } else if (i == 3) {
-                yAdd = 1.0f;
+                yAdd = 0.5f;
             }
 
-            Vector4f currentPos = new Vector4f(
-                    sprite.gameObject.transform.position.x + (xAdd * sprite.gameObject.transform.scale.x),
+            Vector4f currentPos = new Vector4f(sprite.gameObject.transform.position.x + (xAdd * sprite.gameObject.transform.scale.x),
                     sprite.gameObject.transform.position.y + (yAdd * sprite.gameObject.transform.scale.y),
                     0, 1);
-
             if (isRotated) {
-                currentPos = new Vector4f(xAdd, yAdd, 0, 1).mul(transformaMatrix);
+                currentPos = new Vector4f(xAdd, yAdd, 0, 1).mul(transformMatrix);
             }
 
             // Load position
@@ -272,20 +299,5 @@ public class RenderBatch implements Comparable<RenderBatch> {
     @Override
     public int compareTo(RenderBatch o) {
         return Integer.compare(this.zIndex, o.getZindex());
-    }
-
-    public boolean destroyIfExists(GameObject go) {
-        SpriteRenderer sprite = go.getComponent(SpriteRenderer.class);
-        for (int i = 0; i < numSprites; i++) {
-            if (sprites[i].equals(sprite)) {
-                for (int j = i; j < numSprites; j++) {
-                    sprites[j] = sprites[j + 1];
-                    sprites[j].setDirty();
-                }
-                numSprites--;
-                return true;
-            }
-        }
-        return false;
     }
 }
