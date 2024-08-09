@@ -15,19 +15,6 @@ public class SpriteRenderer extends Component {
     private transient Transform lastTransform;
     private transient boolean isDirty = true;
 
-
-//    public SpriteRenderer(Vector4f color) {
-//        this.color = color;
-//        this.sprite = null;
-//        this.isDirty = true;
-//    }
-//
-//    public SpriteRenderer(Sprite sprite) {
-//        this.sprite = sprite;
-//        this.color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-//        this.isDirty = true;
-//    }
-
     @Override
     public void start() {
         this.lastTransform = gameObject.transform.copy();
