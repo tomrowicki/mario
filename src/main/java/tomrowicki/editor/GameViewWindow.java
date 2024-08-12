@@ -10,7 +10,6 @@ import tomrowicki.observers.EventSystem;
 import tomrowicki.observers.events.Event;
 import tomrowicki.observers.events.EventType;
 
-// FIXME there's a bug here, replace with file from later episodes
 public class GameViewWindow {
 
     private float leftX, rightX, topY, bottomY;

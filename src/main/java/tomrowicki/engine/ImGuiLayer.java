@@ -30,15 +30,14 @@ public class ImGuiLayer {
     private GameViewWindow gameViewWindow;
     private PropertiesWindow propertiesWindow;
     private MenuBar menuBar;
-    private SceneHierarchyWindow sceneHierarchyWindow;
-
+    private SceneHierarchyWindow sceneHeirarchyWindow;
 
     public ImGuiLayer(long glfwWindow, PickingTexture pickingTexture) {
         this.glfwWindow = glfwWindow;
         this.gameViewWindow = new GameViewWindow();
         this.propertiesWindow = new PropertiesWindow(pickingTexture);
         this.menuBar = new MenuBar();
-        this.sceneHierarchyWindow = new SceneHierarchyWindow();
+        this.sceneHeirarchyWindow = new SceneHierarchyWindow();
     }
 
     // Initialize Dear ImGui.
@@ -51,11 +50,9 @@ public class ImGuiLayer {
         // Initialize ImGuiIO config
         final ImGuiIO io = ImGui.getIO();
 
-        io.setIniFilename("imgui.ini"); // We don't want to save .ini file (outdated comment)
-        io.setConfigFlags(ImGuiConfigFlags.NavEnableKeyboard); // Navigation with keyboard
+        io.setIniFilename("imgui.ini"); // We don't want to save .ini file
         io.addConfigFlags(ImGuiConfigFlags.DockingEnable);
         io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
-//        io.setBackendFlags(ImGuiBackendFlags.HasMouseCursors); // Mouse cursors to display while resizing windows etc.
         io.setBackendPlatformName("imgui_java_impl_glfw");
 
         // ------------------------------------------------------------
@@ -107,7 +104,9 @@ public class ImGuiLayer {
         glfwSetScrollCallback(glfwWindow, (w, xOffset, yOffset) -> {
             io.setMouseWheelH(io.getMouseWheelH() + (float) xOffset);
             io.setMouseWheel(io.getMouseWheel() + (float) yOffset);
-            MouseListener.mouseScrollCallback(w, xOffset, yOffset);
+            if (!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()) {
+                MouseListener.mouseScrollCallback(w, xOffset, yOffset);
+            }
         });
 
         io.setSetClipboardTextFn(new ImStrConsumer() {
@@ -133,41 +132,36 @@ public class ImGuiLayer {
         // Fonts configuration
         // Read: https://raw.githubusercontent.com/ocornut/imgui/master/docs/FONTS.txt
 
-//        final ImFontAtlas fontAtlas = io.getFonts();
-//        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
-//
-//        // Glyphs could be added per-font as well as per config used globally like here
-//        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
-//
-//        // Fonts merge example
-//        fontConfig.setPixelSnapH(true);
-//        fontAtlas.addFontFromFileTTF("assets/fonts/Vanilla Cake Free.ttf", 32, fontConfig);
-//
-//        fontConfig.destroy(); // After all fonts were added we don't need this config more
-//
-////         ------------------------------------------------------------
-////         Use freetype instead of stb_truetype to build a fonts texture
-//        ImGuiFreeType.buildFontAtlas(fontAtlas, ImGuiFreeType.RasterizerFlags.LightHinting);
+        final ImFontAtlas fontAtlas = io.getFonts();
+        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
 
-//         Method initializes LWJGL3 renderer.
-//         This method SHOULD be called after you've initialized your ImGui configuration (fonts and so on).
-//         ImGui context should be created as well.
+        // Glyphs could be added per-font as well as per config used globally like here
+        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
+
+        // Fonts merge example
+        fontConfig.setPixelSnapH(true);
+//        fontAtlas.addFontFromFileTTF("assets/fonts/segoeui.ttf", 32, fontConfig);
+
+        fontConfig.destroy(); // After all fonts were added we don't need this config more
+
+        // Method initializes LWJGL3 renderer.
+        // This method SHOULD be called after you've initialized your ImGui configuration (fonts and so on).
+        // ImGui context should be created as well.
         imGuiGlfw.init(glfwWindow, false);
         imGuiGl3.init("#version 330 core");
     }
 
-    // Main application loop
     public void update(float dt, Scene currentScene) {
         startFrame(dt);
 
         // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
         setupDockspace();
         currentScene.imgui();
-//        ImGui.showDemoWindow();
+        //ImGui.showDemoWindow();
         gameViewWindow.imgui();
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imgui();
-        sceneHierarchyWindow.imgui();
+        sceneHeirarchyWindow.imgui();
 
         endFrame();
     }
@@ -211,15 +205,15 @@ public class ImGuiLayer {
         ImGui.setNextWindowSize(Window.getWidth(), Window.getHeight());
         ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
         ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
-        windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse
-                | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus
-                | ImGuiWindowFlags.NoNavFocus;
+        windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
+                ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
 
         ImGui.begin("Dockspace Demo", new ImBoolean(true), windowFlags);
         ImGui.popStyleVar(2);
 
         // Dockspace
-        ImGui.dockSpace(ImGui.getID("Dockspace")); // generates id by hashing the string
+        ImGui.dockSpace(ImGui.getID("Dockspace"));
 
         menuBar.imgui();
 
@@ -227,6 +221,6 @@ public class ImGuiLayer {
     }
 
     public PropertiesWindow getPropertiesWindow() {
-        return propertiesWindow;
+        return this.propertiesWindow;
     }
 }
