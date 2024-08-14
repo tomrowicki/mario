@@ -10,9 +10,9 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
 public class EditorCamera extends Component {
 
-    private float dragDebounce = 0.064f;
+    private float dragDebounce = 0.032f;
 
-    private final Camera levelEditorCamera;
+    private Camera levelEditorCamera;
     private Vector2f clickOrigin;
     private boolean reset = false;
 
@@ -28,13 +28,14 @@ public class EditorCamera extends Component {
     @Override
     public void editorUpdate(float dt) {
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_MIDDLE) && dragDebounce > 0) {
-            this.clickOrigin = MouseListener.getWorld();
+            this.clickOrigin = new Vector2f(MouseListener.getWorldX(), MouseListener.getWorldY());
             dragDebounce -= dt;
+            return;
         } else if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_MIDDLE)) {
-            Vector2f mousePos = MouseListener.getWorld();
-            Vector2f mouseDistance = new Vector2f(mousePos).sub(clickOrigin);
-            levelEditorCamera.position.sub(mouseDistance.mul(dt).mul(dragSensitivity));
-            this.clickOrigin.lerp(mousePos, dt); // interpolation
+            Vector2f mousePos = new Vector2f(MouseListener.getWorldX(), MouseListener.getWorldY());
+            Vector2f delta = new Vector2f(mousePos).sub(this.clickOrigin);
+            levelEditorCamera.position.sub(delta.mul(dt).mul(dragSensitivity));
+            this.clickOrigin.lerp(mousePos, dt);
         }
 
         if (dragDebounce <= 0.0f && !MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_MIDDLE)) {
@@ -42,8 +43,7 @@ public class EditorCamera extends Component {
         }
 
         if (MouseListener.getScrollY() != 0.0f) {
-            float addValue = (float) Math.pow(
-                    Math.abs(MouseListener.getScrollY() * scrollSensitivity),
+            float addValue = (float)Math.pow(Math.abs(MouseListener.getScrollY() * scrollSensitivity),
                     1 / levelEditorCamera.getZoom());
             addValue *= -Math.signum(MouseListener.getScrollY());
             levelEditorCamera.addZoom(addValue);
@@ -55,11 +55,13 @@ public class EditorCamera extends Component {
 
         if (reset) {
             levelEditorCamera.position.lerp(new Vector2f(), lerpTime);
-            levelEditorCamera.setZoom(levelEditorCamera.getZoom() + ((1.0f - levelEditorCamera.getZoom()) * lerpTime));
+            levelEditorCamera.setZoom(this.levelEditorCamera.getZoom() +
+                    ((1.0f - levelEditorCamera.getZoom()) * lerpTime));
             this.lerpTime += 0.1f * dt;
-            if (Math.abs(levelEditorCamera.position.x) < 5.0f && Math.abs(levelEditorCamera.position.y) < 5.0f) {
+            if (Math.abs(levelEditorCamera.position.x) <= 5.0f &&
+                    Math.abs(levelEditorCamera.position.y) <= 5.0f) {
                 this.lerpTime = 0.0f;
-                levelEditorCamera.position.set(0f,0f);
+                levelEditorCamera.position.set(-250f, 0f);
                 this.levelEditorCamera.setZoom(1.0f);
                 reset = false;
             }

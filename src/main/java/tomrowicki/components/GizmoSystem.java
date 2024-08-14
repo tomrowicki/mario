@@ -17,8 +17,8 @@ public class GizmoSystem extends Component {
 
     @Override
     public void start() {
-        gameObject.addComponent(new TranslateGizmo(gizmos.getSprite(1), Window.get().getImGuiLayer().getPropertiesWindow()));
-        gameObject.addComponent(new ScaleGizmo(gizmos.getSprite(2), Window.get().getImGuiLayer().getPropertiesWindow() ));
+        gameObject.addComponent(new TranslateGizmo(gizmos.getSprite(1), Window.get().getImguiLayer().getPropertiesWindow()));
+        gameObject.addComponent(new ScaleGizmo(gizmos.getSprite(2), Window.get().getImguiLayer().getPropertiesWindow() ));
     }
 
     @Override

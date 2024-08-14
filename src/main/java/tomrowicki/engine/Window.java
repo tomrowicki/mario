@@ -39,9 +39,9 @@ public class Window implements Observer {
     private static Scene currentScene;
 
     private Window() {
-        this.width = 2560;
-        this.height = 1440;
-        this.title = "Mario";
+        this.width = 1920;
+        this.height = 1080;
+        this.title = "Jade";
         EventSystem.addObserver(this);
     }
 
@@ -50,7 +50,7 @@ public class Window implements Observer {
             currentScene.destroy();
         }
 
-        getImGuiLayer().getPropertiesWindow().setActiveGameObject(null);
+        getImguiLayer().getPropertiesWindow().setActiveGameObject(null);
         currentScene = new Scene(sceneInitializer);
         currentScene.load();
         currentScene.init();
@@ -137,7 +137,6 @@ public class Window implements Observer {
         ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
         ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
 
-        // audio library unavailable/not supported
         if (!alCapabilities.OpenAL10) {
             assert false : "Audio library not supported.";
         }
@@ -163,7 +162,7 @@ public class Window implements Observer {
     }
 
     public void loop() {
-        float beginTime = (float) glfwGetTime();
+        float beginTime = (float)glfwGetTime();
         float endTime;
         float dt = -1.0f;
 
@@ -196,7 +195,6 @@ public class Window implements Observer {
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
-                DebugDraw.draw();
                 Renderer.bindShader(defaultShader);
                 if (runtimePlaying) {
                     currentScene.update(dt);
@@ -204,25 +202,27 @@ public class Window implements Observer {
                     currentScene.editorUpdate(dt);
                 }
                 currentScene.render();
+                DebugDraw.draw();
             }
             this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
-            glfwSwapBuffers(glfwWindow);
-            MouseListener.endFrame();
 
-            endTime = (float) glfwGetTime();
+            MouseListener.endFrame();
+            glfwSwapBuffers(glfwWindow);
+
+            endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
     }
 
     public static int getWidth() {
-        return get().width;
+        return 3840;//get().width;
     }
 
     public static int getHeight() {
-        return get().height;
+        return 2160;//get().height;
     }
 
     public static void setWidth(int newWidth) {
@@ -241,24 +241,28 @@ public class Window implements Observer {
         return 16.0f / 9.0f;
     }
 
-    public static ImGuiLayer getImGuiLayer() {
+    public static ImGuiLayer getImguiLayer() {
         return get().imguiLayer;
     }
 
     @Override
     public void onNotify(GameObject object, Event event) {
         switch (event.type) {
-            case GameEngineStartPlay -> {
-                runtimePlaying = true;
+            case GameEngineStartPlay:
+                this.runtimePlaying = true;
                 currentScene.save();
                 Window.changeScene(new LevelEditorSceneInitializer());
-            }
-            case GameEngineStopPlay -> {
-                runtimePlaying = false;
+                break;
+            case GameEngineStopPlay:
+                this.runtimePlaying = false;
                 Window.changeScene(new LevelEditorSceneInitializer());
-            }
-            case LoadLevel -> Window.changeScene(new LevelEditorSceneInitializer());
-            case SaveLevel -> currentScene.save();
+                break;
+            case LoadLevel:
+                Window.changeScene(new LevelEditorSceneInitializer());
+                break;
+            case SaveLevel:
+                currentScene.save();
+                break;
         }
     }
 }
