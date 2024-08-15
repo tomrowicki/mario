@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL;
 import tomrowicki.observers.EventSystem;
 import tomrowicki.observers.Observer;
 import tomrowicki.observers.events.Event;
+import tomrowicki.physics2d.Physics2D;
 import tomrowicki.renderer.*;
 import tomrowicki.scenes.LevelEditorSceneInitializer;
 import tomrowicki.scenes.Scene;
@@ -65,8 +66,10 @@ public class Window implements Observer {
         return Window.window;
     }
 
+    public static Physics2D getPhysics() { return currentScene.getPhysics(); }
+
     public static Scene getScene() {
-        return get().currentScene;
+        return currentScene;
     }
 
     public void run() {
@@ -208,6 +211,7 @@ public class Window implements Observer {
 
             this.imguiLayer.update(dt, currentScene);
 
+            KeyListener.endFrame();
             MouseListener.endFrame();
             glfwSwapBuffers(glfwWindow);
 

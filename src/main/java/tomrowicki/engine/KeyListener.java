@@ -1,22 +1,29 @@
 package tomrowicki.engine;
 
+import java.util.Arrays;
+
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class KeyListener {
-
     private static KeyListener instance;
-    private boolean[] keyPressed = new boolean[350];
-    private boolean[] keyBeginPress = new boolean[350];
+    private boolean keyPressed[] = new boolean[350];
+    private boolean keyBeginPress[] = new boolean[350];
 
+    private KeyListener() {
 
-    private KeyListener() {}
+    }
+
+    public static void endFrame() {
+        Arrays.fill(get().keyBeginPress, false);
+    }
 
     public static KeyListener get() {
-        if (instance == null) {
-            instance = new KeyListener();
+        if (KeyListener.instance == null) {
+            KeyListener.instance = new KeyListener();
         }
-        return instance;
+
+        return KeyListener.instance;
     }
 
     public static void keyCallback(long window, int key, int scancode, int action, int mods) {
@@ -34,10 +41,6 @@ public class KeyListener {
     }
 
     public static boolean keyBeginPress(int keyCode) {
-        boolean result = get().keyBeginPress[keyCode];
-        if (result) {
-            get().keyBeginPress[keyCode] = false;
-        }
-        return result;
+        return get().keyBeginPress[keyCode];
     }
 }

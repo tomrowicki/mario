@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Scene {
 
@@ -37,14 +38,18 @@ public class Scene {
         this.isRunning = false;
     }
 
+    public Physics2D getPhysics() {
+        return this.physics2D;
+    }
+
     public void init() {
-        this.camera = new Camera(new Vector2f(-250, 0));
-        sceneInitializer.loadResources(this);
-        sceneInitializer.init(this);
+        this.camera = new Camera(new Vector2f(0, 0));
+        this.sceneInitializer.loadResources(this);
+        this.sceneInitializer.init(this);
     }
 
     public void start() {
-        for (int i = 0; i < gameObjects.size(); i++) {
+        for (int i=0; i < gameObjects.size(); i++) {
             GameObject go = gameObjects.get(i);
             go.start();
             this.renderer.add(go);
@@ -64,17 +69,34 @@ public class Scene {
         }
     }
 
-    public void editorUpdate(float dt) {
-        camera.adjustProjection();
+    public void destroy() {
+        for (GameObject go : gameObjects) {
+            go.destroy();
+        }
+    }
 
-        for (int i = 0; i < gameObjects.size(); i++) {
+    public List<GameObject> getGameObjects() {
+        return this.gameObjects;
+    }
+
+    public GameObject getGameObject(int gameObjectId) {
+        Optional<GameObject> result = this.gameObjects.stream()
+                .filter(gameObject -> gameObject.getUid() == gameObjectId)
+                .findFirst();
+        return result.orElse(null);
+    }
+
+    public void editorUpdate(float dt) {
+        this.camera.adjustProjection();
+
+        for (int i=0; i < gameObjects.size(); i++) {
             GameObject go = gameObjects.get(i);
             go.editorUpdate(dt);
 
             if (go.isDead()) {
                 gameObjects.remove(i);
-                renderer.destroyGameObject(go);
-                physics2D.destroyGameObject(go);
+                this.renderer.destroyGameObject(go);
+                this.physics2D.destroyGameObject(go);
                 i--;
             }
         }
@@ -84,21 +106,21 @@ public class Scene {
         this.camera.adjustProjection();
         this.physics2D.update(dt);
 
-        for (int i = 0; i < gameObjects.size(); i++) {
+        for (int i=0; i < gameObjects.size(); i++) {
             GameObject go = gameObjects.get(i);
             go.update(dt);
 
             if (go.isDead()) {
                 gameObjects.remove(i);
-                renderer.destroyGameObject(go);
-                physics2D.destroyGameObject(go);
+                this.renderer.destroyGameObject(go);
+                this.physics2D.destroyGameObject(go);
                 i--;
             }
         }
     }
 
     public void render() {
-        renderer.render();
+        this.renderer.render();
     }
 
     public Camera camera() {
@@ -106,7 +128,7 @@ public class Scene {
     }
 
     public void imgui() {
-        sceneInitializer.imgui();
+        this.sceneInitializer.imgui();
     }
 
     public GameObject createGameObject(String name) {
@@ -114,6 +136,28 @@ public class Scene {
         go.addComponent(new Transform());
         go.transform = go.getComponent(Transform.class);
         return go;
+    }
+
+    public void save() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Component.class, new ComponentDeserializer())
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+                .create();
+
+        try {
+            FileWriter writer = new FileWriter("level.txt");
+            List<GameObject> objsToSerialize = new ArrayList<>();
+            for (GameObject obj : this.gameObjects) {
+                if (obj.doSerialization()) {
+                    objsToSerialize.add(obj);
+                }
+            }
+            writer.write(gson.toJson(objsToSerialize));
+            writer.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void load() {
@@ -151,44 +195,6 @@ public class Scene {
             maxCompId++;
             GameObject.init(maxGoId);
             Component.init(maxCompId);
-        }
-    }
-
-    public void destroy() {
-        for (GameObject go : this.gameObjects) {
-            go.destroy();
-        }
-    }
-
-    public List<GameObject> getGameObjects() {
-        return gameObjects;
-    }
-
-    public GameObject getGameObject(int gameObjectId) {
-        return gameObjects.stream()
-                .filter(go -> go.getUid() == gameObjectId)
-                .findFirst().orElse(null);
-    }
-
-    public void save() {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(Component.class, new ComponentDeserializer())
-                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
-                .create();
-
-        try {
-            FileWriter writer = new FileWriter("level.txt");
-            List<GameObject> objsToSerialize = new ArrayList<>();
-            for (GameObject go : gameObjects) {
-                if (go.doSerialization()) {
-                    objsToSerialize.add(go);
-                }
-            }
-            writer.write(gson.toJson(objsToSerialize));
-            writer.close();
-        } catch(IOException e) {
-            e.printStackTrace();
         }
     }
 }

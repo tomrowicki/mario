@@ -1,29 +1,27 @@
 package tomrowicki.editor;
 
 import imgui.ImGui;
-import tomrowicki.components.NonPickable;
+import org.joml.Vector4f;
+import tomrowicki.components.SpriteRenderer;
 import tomrowicki.engine.GameObject;
-import tomrowicki.engine.MouseListener;
 import tomrowicki.physics2d.components.Box2DCollider;
 import tomrowicki.physics2d.components.CircleCollider;
 import tomrowicki.physics2d.components.Rigidbody2D;
 import tomrowicki.renderer.PickingTexture;
-import tomrowicki.scenes.Scene;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
-
 public class PropertiesWindow {
-
     private List<GameObject> activeGameObjects;
+    private List<Vector4f> activeGameObjectsOgColor;
     private GameObject activeGameObject = null;
     private PickingTexture pickingTexture;
 
     public PropertiesWindow(PickingTexture pickingTexture) {
-        activeGameObjects = new ArrayList<>();
+        this.activeGameObjects = new ArrayList<>();
         this.pickingTexture = pickingTexture;
+        this.activeGameObjectsOgColor = new ArrayList<>();
     }
 
     public void imgui() {
@@ -61,29 +59,48 @@ public class PropertiesWindow {
     }
 
     public GameObject getActiveGameObject() {
-        return activeGameObjects.size() == 1 ? activeGameObjects.get(0) : null;
+        return activeGameObjects.size() == 1 ? this.activeGameObjects.get(0) :
+                null;
     }
 
     public List<GameObject> getActiveGameObjects() {
-        return activeGameObjects;
+        return this.activeGameObjects;
     }
 
     public void clearSelected() {
-        activeGameObjects.clear();
+        if (activeGameObjectsOgColor.size() > 0) {
+            int i = 0;
+            for (GameObject go : activeGameObjects) {
+                SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
+                if (spr != null) {
+                    spr.setColor(activeGameObjectsOgColor.get(i));
+                }
+                i++;
+            }
+        }
+        this.activeGameObjects.clear();
+        this.activeGameObjectsOgColor.clear();
     }
 
     public void setActiveGameObject(GameObject go) {
         if (go != null) {
             clearSelected();
-            activeGameObjects.add(go);
+            this.activeGameObjects.add(go);
         }
     }
 
     public void addActiveGameObject(GameObject go) {
-        activeGameObjects.add(go);
+        SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
+        if (spr != null ) {
+            this.activeGameObjectsOgColor.add(new Vector4f(spr.getColor()));
+            spr.setColor(new Vector4f(0.8f, 0.8f, 0.0f, 0.8f));
+        } else {
+            this.activeGameObjectsOgColor.add(new Vector4f());
+        }
+        this.activeGameObjects.add(go);
     }
 
     public PickingTexture getPickingTexture() {
-        return pickingTexture;
+        return this.pickingTexture;
     }
 }
