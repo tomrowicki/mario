@@ -5,6 +5,9 @@ import imgui.ImVec2;
 import org.joml.Vector2f;
 import tomrowicki.components.*;
 import tomrowicki.engine.*;
+import tomrowicki.physics2d.components.Box2DCollider;
+import tomrowicki.physics2d.components.Rigidbody2D;
+import tomrowicki.physics2d.enums.BodyType;
 import tomrowicki.util.AssetPool;
 
 import java.io.File;
@@ -32,32 +35,35 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
         levelEditorStuff.addComponent(new EditorCamera(scene.camera()));
         levelEditorStuff.addComponent(new GizmoSystem(gizmos));
         scene.addGameObjectToScene(levelEditorStuff);
-
-
-        levelEditorStuff.start();
     }
 
     @Override
     public void loadResources(Scene scene) {
         AssetPool.getShader("assets/shaders/default.glsl");
 
-        AssetPool.addSpriteSheet("assets/images/spritesheets/decorationsAndBlocks.png",
+        AssetPool.addSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png",
                 new Spritesheet(AssetPool.getTexture("assets/images/spritesheets/decorationsAndBlocks.png"),
                         16, 16, 81, 0));
-
-        AssetPool.addSpriteSheet("assets/images/spritesheets/character_and_enemies_32.png",
-                new Spritesheet(AssetPool.getTexture("assets/images/spritesheets/character_and_enemies_32.png"),
+        AssetPool.addSpritesheet("assets/images/spritesheet.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/spritesheet.png"),
                         16, 16, 26, 0));
-        AssetPool.addSpriteSheet("assets/images/spritesheets/items.png",
-                new Spritesheet(AssetPool.getTexture("assets/images/spritesheets/items.png"),
+        AssetPool.addSpritesheet("assets/images/turtle.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/turtle.png"),
+                        16, 24, 4, 0));
+        AssetPool.addSpritesheet("assets/images/bigSpritesheet.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/bigSpritesheet.png"),
+                        16, 32, 42, 0));
+        AssetPool.addSpritesheet("assets/images/pipes.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/pipes.png"),
+                        32, 32, 4, 0));
+        AssetPool.addSpritesheet("assets/images/items.png",
+                new Spritesheet(AssetPool.getTexture("assets/images/items.png"),
                         16, 16, 43, 0));
-
-        AssetPool.addSpriteSheet("assets/images/gizmos.png",
+        AssetPool.addSpritesheet("assets/images/gizmos.png",
                 new Spritesheet(AssetPool.getTexture("assets/images/gizmos.png"),
                         24, 48, 3, 0));
         AssetPool.getTexture("assets/images/blendImage2.png");
 
-        // not all available files are imported
         AssetPool.addSound("assets/sounds/main-theme-overworld.ogg", true);
         AssetPool.addSound("assets/sounds/flagpole.ogg", false);
         AssetPool.addSound("assets/sounds/break_block.ogg", false);
@@ -95,10 +101,11 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
         levelEditorStuff.imgui();
         ImGui.end();
 
-        ImGui.begin("Objects");
+        ImGui.begin("Test window");
 
         if (ImGui.beginTabBar("WindowTabBar")) {
             if (ImGui.beginTabItem("Blocks")) {
+
                 ImVec2 windowPos = new ImVec2();
                 ImGui.getWindowPos(windowPos);
                 ImVec2 windowSize = new ImVec2();
@@ -108,6 +115,9 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
 
                 float windowX2 = windowPos.x + windowSize.x;
                 for (int i = 0; i < sprites.size(); i++) {
+                    if (i == 34) continue;
+                    if (i >= 38 && i < 61) continue;
+
                     Sprite sprite = sprites.getSprite(i);
                     float spriteWidth = sprite.getWidth() * 4;
                     float spriteHeight = sprite.getHeight() * 4;
@@ -117,6 +127,16 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                     ImGui.pushID(i);
                     if (ImGui.imageButton(id, spriteWidth, spriteHeight, texCoords[2].x, texCoords[0].y, texCoords[0].x, texCoords[2].y)) {
                         GameObject object = Prefabs.generateSpriteObject(sprite, 0.25f, 0.25f);
+                        Rigidbody2D rb = new Rigidbody2D();
+                        rb.setBodyType(BodyType.Static);
+                        object.addComponent(rb);
+                        Box2DCollider b2d = new Box2DCollider();
+                        b2d.setHalfSize(new Vector2f(0.25f, 0.25f));
+                        object.addComponent(b2d);
+                        object.addComponent(new Ground());
+                        if (i == 12) {
+                            //object.addComponent(new BreakableBrick());
+                        }
                         levelEditorStuff.getComponent(MouseControls.class).pickupObject(object);
                     }
                     ImGui.popID();
@@ -129,11 +149,12 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                         ImGui.sameLine();
                     }
                 }
+
                 ImGui.endTabItem();
             }
 
             if (ImGui.beginTabItem("Prefabs")) {
-                Spritesheet playerSprites = AssetPool.getSpritesheet("assets/images/spritesheets/character_and_enemies_32.png");
+                Spritesheet playerSprites = AssetPool.getSpritesheet("assets/images/spritesheet.png");
                 Sprite sprite = playerSprites.getSprite(0);
                 float spriteWidth = sprite.getWidth() * 4;
                 float spriteHeight = sprite.getHeight() * 4;
@@ -146,24 +167,23 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                 }
                 ImGui.sameLine();
 
-                Spritesheet items = AssetPool.getSpritesheet("assets/images/spritesheets/items.png");
+                Spritesheet items = AssetPool.getSpritesheet("assets/images/items.png");
                 sprite = items.getSprite(0);
                 id = sprite.getTexId();
                 texCoords = sprite.getTexCoords();
-
                 if (ImGui.imageButton(id, spriteWidth, spriteHeight, texCoords[2].x, texCoords[0].y, texCoords[0].x, texCoords[2].y)) {
                     GameObject object = Prefabs.generateQuestionBlock();
                     levelEditorStuff.getComponent(MouseControls.class).pickupObject(object);
                 }
-                ImGui.sameLine();
 
                 ImGui.endTabItem();
             }
+
             if (ImGui.beginTabItem("Sounds")) {
                 Collection<Sound> sounds = AssetPool.getAllSounds();
                 for (Sound sound : sounds) {
-                    File tmpFile = new File(sound.getFilepath());
-                    if (ImGui.button(tmpFile.getName())) {
+                    File tmp = new File(sound.getFilepath());
+                    if (ImGui.button(tmp.getName())) {
                         if (!sound.isPlaying()) {
                             sound.play();
                         } else {
@@ -175,6 +195,7 @@ public class LevelEditorSceneInitializer extends SceneInitializer {
                         ImGui.sameLine();
                     }
                 }
+
                 ImGui.endTabItem();
             }
             ImGui.endTabBar();

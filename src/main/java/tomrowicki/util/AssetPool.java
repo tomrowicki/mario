@@ -11,48 +11,52 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AssetPool {
-
     private static Map<String, Shader> shaders = new HashMap<>();
     private static Map<String, Texture> textures = new HashMap<>();
     private static Map<String, Spritesheet> spritesheets = new HashMap<>();
     private static Map<String, Sound> sounds = new HashMap<>();
 
-    public static Shader getShader(String resourcePath) {
-        File file = new File(resourcePath);
-        if (shaders.containsKey(file.getAbsolutePath())) {
-            return shaders.get(file.getAbsolutePath());
+    public static Shader getShader(String resourceName) {
+        File file = new File(resourceName);
+        if (AssetPool.shaders.containsKey(file.getAbsolutePath())) {
+            return AssetPool.shaders.get(file.getAbsolutePath());
         } else {
-            Shader shader = new Shader(resourcePath);
+            Shader shader = new Shader(resourceName);
             shader.compile();
-            shaders.put(file.getAbsolutePath(), shader);
+            AssetPool.shaders.put(file.getAbsolutePath(), shader);
             return shader;
         }
     }
 
-    public static Texture getTexture(String resourcePath) {
-        File file = new File(resourcePath);
-        if (textures.containsKey(file.getAbsolutePath())) {
-            return textures.get(file.getAbsolutePath());
+    public static Texture getTexture(String resourceName) {
+        File file = new File(resourceName);
+        if (AssetPool.textures.containsKey(file.getAbsolutePath())) {
+            return AssetPool.textures.get(file.getAbsolutePath());
         } else {
             Texture texture = new Texture();
-            texture.init(resourcePath);
-            textures.put(file.getAbsolutePath(), texture);
+            texture.init(resourceName);
+            AssetPool.textures.put(file.getAbsolutePath(), texture);
             return texture;
         }
     }
 
-    public static void addSpriteSheet(String resourcePath, Spritesheet spritesheet) {
-        File file = new File(resourcePath);
-        if (!spritesheets.containsKey(file.getAbsolutePath())) {
-            spritesheets.put(file.getAbsolutePath(), spritesheet);
+    public static void addSpritesheet(String resourceName, Spritesheet spritesheet) {
+        File file = new File(resourceName);
+        if (!AssetPool.spritesheets.containsKey(file.getAbsolutePath())) {
+            AssetPool.spritesheets.put(file.getAbsolutePath(), spritesheet);
         }
     }
 
-    public static Spritesheet getSpritesheet(String resourcePath) {
-        File file = new File(resourcePath);
-        assert spritesheets.containsKey(file.getAbsolutePath()) :
-                "Error: Tried to access spritesheet from file " + file.getAbsolutePath() + " that has not been added to the asset pool";
-        return spritesheets.getOrDefault(file.getAbsolutePath(), null);
+    public static Spritesheet getSpritesheet(String resourceName) {
+        File file = new File(resourceName);
+        if (!AssetPool.spritesheets.containsKey(file.getAbsolutePath())) {
+            assert false : "Error: Tried to access spritesheet '" + resourceName + "' and it has not been added to asset pool.";
+        }
+        return AssetPool.spritesheets.getOrDefault(file.getAbsolutePath(), null);
+    }
+
+    public static Collection<Sound> getAllSounds() {
+        return sounds.values();
     }
 
     public static Sound getSound(String soundFile) {
@@ -60,8 +64,9 @@ public class AssetPool {
         if (sounds.containsKey(file.getAbsolutePath())) {
             return sounds.get(file.getAbsolutePath());
         } else {
-            assert false : "Sound file not added: " + soundFile;
+            assert false : "Sound file not added '" + soundFile + "'";
         }
+
         return null;
     }
 
@@ -71,12 +76,8 @@ public class AssetPool {
             return sounds.get(file.getAbsolutePath());
         } else {
             Sound sound = new Sound(file.getAbsolutePath(), loops);
-            sounds.put(file.getAbsolutePath(), sound);
+            AssetPool.sounds.put(file.getAbsolutePath(), sound);
             return sound;
         }
-    }
-
-    public static Collection<Sound> getAllSounds() {
-        return sounds.values();
     }
 }

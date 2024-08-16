@@ -10,33 +10,31 @@ import java.util.List;
 import java.util.Objects;
 
 public class StateMachine extends Component {
-
     private class StateTrigger {
-
-        public String trigger;
         public String state;
+        public String trigger;
 
         public StateTrigger() {}
 
-        public StateTrigger(String trigger, String state) {
-            this.trigger = trigger;
+        public StateTrigger(String state, String trigger) {
             this.state = state;
+            this.trigger = trigger;
         }
 
         @Override
         public boolean equals(Object o) {
             if (o.getClass() != StateTrigger.class) return false;
-            StateTrigger t2 = (StateTrigger) o;
-            return trigger.equals(t2.trigger) && state.equals(t2.state);
+            StateTrigger t2 = (StateTrigger)o;
+            return t2.trigger.equals(this.trigger) && t2.state.equals(this.state);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(trigger, state);
+            return Objects.hash(state, trigger);
         }
     }
 
-    public HashMap<StateTrigger, String> stateTransfers  = new HashMap<>();
+    public HashMap<StateTrigger, String> stateTransfers = new HashMap<>();
     private List<AnimationState> states = new ArrayList<>();
     private transient AnimationState currentState = null;
     private String defaultStateTitle = "";
@@ -47,50 +45,54 @@ public class StateMachine extends Component {
         }
     }
 
-    public void addStateTrigger(String from, String to, String onTrigger) {
-        stateTransfers.put(new StateTrigger(from, onTrigger), to);
-    }
-
-    public void addState(AnimationState state) {
-        states.add(state);
-    }
-
     public void setDefaultState(String animationTitle) {
         for (AnimationState state : states) {
             if (state.title.equals(animationTitle)) {
                 defaultStateTitle = animationTitle;
                 if (currentState == null) {
                     currentState = state;
-                    return;
                 }
+                return;
             }
         }
-        System.out.println("Unable to find state: " + animationTitle);
+
+        System.out.println("Unable to find default state '" + animationTitle + "'");
+    }
+
+    public void addState(String from, String to, String onTrigger) {
+        this.stateTransfers.put(new StateTrigger(from, onTrigger), to);
+    }
+
+    public void addState(AnimationState state) {
+        this.states.add(state);
     }
 
     public void trigger(String trigger) {
-        for (StateTrigger stateTrigger : stateTransfers.keySet()) {
-            if (stateTrigger.state.equals(currentState.title) && stateTrigger.trigger.equals(trigger)) {
-                if (stateTransfers.get(stateTrigger) != null) {
-                    int newStateIndex = -1;
-                    int index = 0;
-                    for (AnimationState state : states) {
-                        if (state.title.equals(stateTransfers.get(stateTrigger))) {
-                            newStateIndex = index;
-                            break;
-                        }
-                        index++;
-                    }
-
+        for (StateTrigger state : stateTransfers.keySet()) {
+            if (state.state.equals(currentState.title) && state.trigger.equals(trigger)) {
+                if (stateTransfers.get(state) != null) {
+                    int newStateIndex = stateIndexOf(stateTransfers.get(state));
                     if (newStateIndex > -1) {
                         currentState = states.get(newStateIndex);
-                        return;
                     }
                 }
                 return;
             }
         }
-        System.out.println("Unable to find trigger: " + trigger);
+
+        System.out.println("Unable to find trigger '" + trigger + "'");
+    }
+
+    private int stateIndexOf(String stateTitle) {
+        int index = 0;
+        for (AnimationState state : states) {
+            if (state.title.equals(stateTitle)) {
+                return index;
+            }
+            index++;
+        }
+
+        return -1;
     }
 
     @Override
@@ -127,16 +129,12 @@ public class StateMachine extends Component {
 
     @Override
     public void imgui() {
-        int index = 0;
-
         for (AnimationState state : states) {
             ImString title = new ImString(state.title);
             ImGui.inputText("State: ", title);
             state.title = title.get();
 
-            ImBoolean doesLoop = new ImBoolean(state.doesLoop);
-            ImGui.checkbox("Does Loop? ", doesLoop);
-            state.setLoop(doesLoop.get());
+            int index = 0;
             for (Frame frame : state.animationFrames) {
                 float[] tmp = new float[1];
                 tmp[0] = frame.frameTime;
