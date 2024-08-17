@@ -1,7 +1,6 @@
 package tomrowicki.components;
 
 import imgui.ImGui;
-import imgui.type.ImBoolean;
 import imgui.type.ImString;
 
 import java.util.ArrayList;
@@ -79,8 +78,6 @@ public class StateMachine extends Component {
                 return;
             }
         }
-
-        System.out.println("Unable to find trigger '" + trigger + "'");
     }
 
     private int stateIndexOf(String stateTitle) {
