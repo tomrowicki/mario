@@ -156,7 +156,7 @@ public class Window implements Observer {
 
         this.framebuffer = new Framebuffer(3840, 2160);
         this.pickingTexture = new PickingTexture(3840, 2160);
-        glViewport(0, 0, 3840, 2160);
+        glViewport(0, 0, 2560, 1440);
 
         this.imguiLayer = new ImGuiLayer(glfwWindow, pickingTexture);
         this.imguiLayer.initImGui();
@@ -180,7 +180,7 @@ public class Window implements Observer {
             glDisable(GL_BLEND);
             pickingTexture.enableWriting();
 
-            glViewport(0, 0, 3840, 2160);
+            glViewport(0, 0, 2560, 1440);
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -222,11 +222,11 @@ public class Window implements Observer {
     }
 
     public static int getWidth() {
-        return 3840;//get().width;
+        return 2560;//get().width;
     }
 
     public static int getHeight() {
-        return 2160;//get().height;
+        return 1440;//get().height;
     }
 
     public static void setWidth(int newWidth) {
