@@ -6,6 +6,19 @@ import org.joml.Vector3f;
 
 public class Camera {
 
+    // FIXME
+    /*
+    Gabe, what screen aspect ratio are you normally working with?
+    I noticed that square sprites (16x16) appear taller than wide on my screen.
+    I didn't notice so much working with the mario blocks, but it became really obvious when I added a couple of large images to my scene.
+    I realized today that the problem is the camera's projection aspect didn't match my screen's aspect.
+    Camera is set to 6 x 3, but I have a 1920/1080 screen.
+    I fixed the issue by setting the camera's projectionHeight to projectWidth/screenAspect.
+    (I added an easy way to retrieve the screen aspect from the window)
+    Throwing this out there for anyone else building along as this same issue plagued my last engine and I corrected for it in all the wrong places,
+     not realizing it was due to the projection.
+     */
+
     private Matrix4f projectionMatrix, viewMatrix, inverseProjection, inverseView; // 4x4 matrices
     public Vector2f position;
 
@@ -48,6 +61,7 @@ public class Camera {
     public Matrix4f getInverseProjection() {
         return inverseProjection;
     }
+
     public Matrix4f getInverseView() {
         return inverseView;
     }
@@ -64,7 +78,7 @@ public class Camera {
         this.zoom = zoom;
     }
 
-    public void addZoom (float value) {
+    public void addZoom(float value) {
         this.zoom += value;
     }
 }
