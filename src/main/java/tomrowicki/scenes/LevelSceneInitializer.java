@@ -1,5 +1,6 @@
 package tomrowicki.scenes;
 
+import tomrowicki.components.GameCamera;
 import tomrowicki.components.SpriteRenderer;
 import tomrowicki.components.Spritesheet;
 import tomrowicki.components.StateMachine;
@@ -16,7 +17,7 @@ public class LevelSceneInitializer extends SceneInitializer {
         Spritesheet sprites = AssetPool.getSpritesheet("assets/images/spritesheets/decorationsAndBlocks.png");
 
         GameObject cameraObject = scene.createGameObject("GameCamera");
-//        cameraObject.addComponent(new GameCamera(scene.camera()));
+        cameraObject.addComponent(new GameCamera(scene.camera()));
         cameraObject.start();
         scene.addGameObjectToScene(cameraObject);
     }

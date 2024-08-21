@@ -10,6 +10,7 @@ import tomrowicki.physics2d.Physics2D;
 import tomrowicki.physics2d.components.PillboxCollider;
 import tomrowicki.physics2d.components.Rigidbody2D;
 import tomrowicki.physics2d.enums.BodyType;
+import tomrowicki.scenes.LevelSceneInitializer;
 import tomrowicki.util.AssetPool;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -73,7 +74,7 @@ public class PlayerController extends Component {
                 this.rb.setVelocity(this.velocity);
                 this.rb.setAngularVelocity(0);
             } else if (!deadGoingUp && gameObject.transform.position.y <= deadMinHeight) {
-//                Window.changeScene(new LevelSceneInitializer());
+                Window.changeScene(new LevelSceneInitializer());
             }
             return;
         }
