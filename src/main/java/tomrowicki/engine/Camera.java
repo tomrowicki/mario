@@ -12,10 +12,10 @@ public class Camera {
 Gabe, what screen aspect ratio areyou normally working with?
 I noticed that square sprites (16x16) appear taller than wide on my screen.
 I didn't notice so much working with the mario blocks, but it became really obvious when I added a couple of large images to my scene.
-Irealizedtodaythattheproblemisthecamera'sprojectionaspectdidn'tmatchmyscreen'saspect.
-Cameraissetto6x3,butIhavea1920/1080screen.
-Ifixedtheissuebysettingthecamera'sprojectionHeighttoprojectWidth/screenAspect.
-(Iaddedaneasywaytoretrievethescreenaspectfromthewindow)
+I realized today that the problem is the camera's projection aspect didn't match mys creen's aspect.
+Camera is set to 6x3, but I have a 1920/1080 screen.
+I fixed the issue by setting the camera's projectionHeight to projectWidth/screenAspect.
+(I added an easy way to retrieve the screen aspect from the window)
 ThrowingthisoutthereforanyoneelsebuildingalongasthissameissueplaguedmylastengineandIcorrectedforitinallthewrongplaces,
 notrealizingitwasduetotheprojection.
 */
