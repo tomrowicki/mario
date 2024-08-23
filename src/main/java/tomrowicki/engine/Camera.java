@@ -20,6 +20,13 @@ Throwingthisoutthereforanyoneelsebuildingalongasthissameissueplaguedmylastengine
 notrealizingitwasduetotheprojection.
 */
 
+    /*
+     @Murderface666  That sounds like it might be an issue with the projection matrix in your camera.
+      I did do some refactoring and I changed the engine to use world units instead of pixel units,
+       since Box2D operates using world units like meters.
+        So you may have to change your scales on your objects to like 0.25 to get a properly sized object
+     */
+
 
     private Matrix4f projectionMatrix, viewMatrix, inverseProjection, inverseView;
     public Vector2f position;
